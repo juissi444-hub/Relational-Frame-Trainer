@@ -3,6 +3,7 @@ import { Settings, History, Play, Pause, RotateCcw, X, Check, Clock, TrendingUp,
 
 export default function RelationalFrameTrainer() {
   const saveTimeoutRef = useRef(null);
+  const lastSettingsRef = useRef(null);
   const [difficulty, setDifficulty] = useState(3);
   const [timePerQuestion, setTimePerQuestion] = useState(30);
   const [networkComplexity, setNetworkComplexity] = useState(0.5);
@@ -306,7 +307,8 @@ export default function RelationalFrameTrainer() {
     saveTimeoutRef.current = setTimeout(() => {
       saveToStorage();
     }, 2000);
-  }, [saveToStorage]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Intentionally empty - we want this to capture the latest saveToStorage via closure
   
   const loadFromStorage = async () => {
     try {
@@ -429,10 +431,6 @@ export default function RelationalFrameTrainer() {
   useEffect(() => {
     if (!currentTrial) { loadFromStorage(); startNewTrial(); }
   }, []);
-
-  useEffect(() => {
-    if (currentTrial) debouncedSaveToStorage();
-  }, [difficulty, timePerQuestion, networkComplexity, spoilerPremises, darkMode, useLetters, useEmojis, useVoronoi, letterLength, autoProgressEnabled, targetPremiseCount, targetAccuracy, enabledRelationModes, currentTrial, debouncedSaveToStorage]);
   
   const renderStimulus = (stimulus) => {
     if (stimulus.startsWith('voronoi_')) {
@@ -828,7 +826,7 @@ export default function RelationalFrameTrainer() {
       </div>
 
       {showSettings && (
-        <div className="sm:hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-sm" onClick={() => setShowSettings(false)} />
+        <div className="sm:hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-sm" onClick={() => { setShowSettings(false); saveToStorage(); }} />
       )}
 
       {/* Hover zone for settings on right */}
@@ -839,7 +837,7 @@ export default function RelationalFrameTrainer() {
 
       <div
         className={`${darkMode ? 'bg-slate-800' : 'bg-white'} shadow-xl transition-all duration-300 overflow-hidden ${(showSettings || hoverSettings) ? 'fixed sm:relative inset-y-0 right-0 w-[90vw] sm:w-96 z-50 opacity-100' : 'w-0 opacity-0'}`}
-        onMouseLeave={() => setHoverSettings(false)}
+        onMouseLeave={() => { setHoverSettings(false); if (!showSettings) saveToStorage(); }}
       >
         {(showSettings || hoverSettings) && (
           <div className="h-full flex flex-col p-3 sm:p-4" style={{scrollbarWidth: 'thin'}}>
@@ -848,7 +846,7 @@ export default function RelationalFrameTrainer() {
                 <Settings className={`w-4 h-4 sm:w-5 sm:h-5 mr-2 ${darkMode ? 'text-indigo-400' : 'text-indigo-600'}`} />
                 <h2 className={`text-base sm:text-lg font-bold ${darkMode ? 'text-gray-100' : 'text-gray-800'}`}>Settings</h2>
               </div>
-              <button onClick={() => { setShowSettings(false); setHoverSettings(false); }} className={`p-1.5 sm:p-1 rounded ${darkMode ? 'hover:bg-slate-700' : 'hover:bg-gray-100'}`}>
+              <button onClick={() => { setShowSettings(false); setHoverSettings(false); saveToStorage(); }} className={`p-1.5 sm:p-1 rounded ${darkMode ? 'hover:bg-slate-700' : 'hover:bg-gray-100'}`}>
                 <X className={`w-5 h-5 sm:w-4 sm:h-4 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`} />
               </button>
             </div>
