@@ -271,7 +271,7 @@ export default function RelationalFrameTrainer() {
         premiseCount: Math.round(stat.premiseCount || 0)
       }));
 
-      await window.storage.set('rft-data', JSON.stringify({
+      const dataToSave = JSON.stringify({
         score,
         history: cleanedHistory,
         statsHistory: cleanedStatsHistory,
@@ -291,7 +291,17 @@ export default function RelationalFrameTrainer() {
           enabledRelationModes
         },
         recentAnswers
-      }));
+      });
+
+      // Use localStorage ONLY to avoid window.storage auto-sync issues
+      // window.storage triggers automatic Supabase syncs which cause continuous saves
+      localStorage.setItem('rft-data', dataToSave);
+
+      // DISABLED: window.storage auto-sync causes continuous Supabase POST requests
+      // If needed in future, implement manual sync button instead
+      // if (window.storage?.set) {
+      //   await window.storage.set('rft-data', dataToSave);
+      // }
     } catch (error) {
       console.error('Save failed:', error);
     }
@@ -312,9 +322,17 @@ export default function RelationalFrameTrainer() {
   
   const loadFromStorage = async () => {
     try {
-      const result = await window.storage.get('rft-data');
-      if (result?.value) {
-        const data = JSON.parse(result.value);
+      // Try localStorage first
+      let dataString = localStorage.getItem('rft-data');
+
+      // Fall back to window.storage if localStorage is empty
+      if (!dataString && window.storage?.get) {
+        const result = await window.storage.get('rft-data');
+        dataString = result?.value;
+      }
+
+      if (dataString) {
+        const data = JSON.parse(dataString);
         if (data.score) setScore(data.score);
         if (data.history) setHistory(data.history);
         if (data.statsHistory) setStatsHistory(data.statsHistory);
