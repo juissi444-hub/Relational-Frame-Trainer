@@ -257,10 +257,10 @@ export default function RelationalFrameTrainer() {
 
   const saveToStorage = async () => {
     try {
-      await window.storage.set('rft-data', JSON.stringify({ 
-        score, history, statsHistory, 
-        settings: { difficulty, timePerQuestion, networkComplexity, spoilerPremises, darkMode, useLetters, useEmojis, useVoronoi, letterLength, autoProgressEnabled, targetPremiseCount, targetAccuracy, enabledRelationModes }, 
-        recentAnswers 
+      await window.storage.set('rft-data', JSON.stringify({
+        score, history, statsHistory,
+        settings: { difficulty, timePerQuestion: Math.round(timePerQuestion), networkComplexity, spoilerPremises, darkMode, useLetters, useEmojis, useVoronoi, letterLength, autoProgressEnabled, targetPremiseCount, targetAccuracy, enabledRelationModes },
+        recentAnswers
       }));
     } catch (error) {
       console.error('Save failed:', error);
@@ -337,7 +337,7 @@ export default function RelationalFrameTrainer() {
   const handleAnswer = useCallback((userAnswer) => {
     if (isPaused || feedback) return;
     const isCorrect = userAnswer === currentTrial.correctAnswer;
-    const timeUsed = timePerQuestion - timeLeft;
+    const timeUsed = Math.round(timePerQuestion - timeLeft); // Round to whole seconds (integer)
     setScore(prev => ({ ...prev, correct: prev.correct + (isCorrect ? 1 : 0), incorrect: prev.incorrect + (isCorrect ? 0 : 1) }));
     setFeedback(isCorrect ? 'correct' : 'incorrect');
     const entry = { trial: currentTrial, userAnswer, isCorrect, timestamp: Date.now(), timeUsed, premiseCount: currentTrial.premises.length };
@@ -361,7 +361,7 @@ export default function RelationalFrameTrainer() {
       const timer = setInterval(() => setTimeLeft(prev => Math.max(0, prev - 0.1)), 100);
       return () => clearInterval(timer);
     } else if (!isPaused && !feedback && timeLeft <= 0) {
-      const timeUsed = timePerQuestion;
+      const timeUsed = Math.round(timePerQuestion); // Round to whole seconds (integer)
       setScore(prev => ({ ...prev, missed: prev.missed + 1 }));
       setFeedback('missed');
       setHistory(prev => [...prev, { trial: currentTrial, userAnswer: null, isCorrect: false, timestamp: Date.now(), timeUsed, premiseCount: currentTrial.premises.length }]);
