@@ -20,6 +20,8 @@ export default function RelationalFrameTrainer() {
   const [showHistory, setShowHistory] = useState(false);
   const [showStats, setShowStats] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
+  const [hoverSettings, setHoverSettings] = useState(false);
+  const [hoverHistory, setHoverHistory] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [currentTrial, setCurrentTrial] = useState(null);
   const [timeLeft, setTimeLeft] = useState(timePerQuestion);
@@ -499,15 +501,24 @@ export default function RelationalFrameTrainer() {
         <div className="sm:hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-sm" onClick={() => { setShowHistory(false); setShowStats(false); }} />
       )}
 
-      <div className={`${darkMode ? 'bg-slate-800' : 'bg-white'} shadow-xl transition-all duration-300 overflow-hidden ${showHistory ? 'fixed sm:relative inset-y-0 left-0 w-[90vw] sm:w-96 z-50' : 'w-0'}`}>
-        {showHistory && (
-          <div className="h-full flex flex-col p-3 sm:p-4">
+      {/* Hover zone for history on left */}
+      <div
+        className="fixed left-0 top-0 bottom-0 w-4 z-40"
+        onMouseEnter={() => setHoverHistory(true)}
+      />
+
+      <div
+        className={`${darkMode ? 'bg-slate-800' : 'bg-white'} shadow-xl transition-all duration-300 overflow-hidden ${(showHistory || hoverHistory) ? 'fixed sm:relative inset-y-0 left-0 w-[90vw] sm:w-96 z-50 opacity-100' : 'w-0 opacity-0'}`}
+        onMouseLeave={() => setHoverHistory(false)}
+      >
+        {(showHistory || hoverHistory) && (
+          <div className="h-full flex flex-col p-3 sm:p-4" style={{scrollbarWidth: 'thin'}}>
             <div className="flex items-center justify-between mb-3 sm:mb-4">
               <div className="flex items-center">
                 <History className={`w-4 h-4 sm:w-5 sm:h-5 mr-2 ${darkMode ? 'text-indigo-400' : 'text-indigo-600'}`} />
                 <h2 className={`text-base sm:text-lg font-bold ${darkMode ? 'text-gray-100' : 'text-gray-800'}`}>History</h2>
               </div>
-              <button onClick={() => setShowHistory(false)} className={`p-1.5 sm:p-1 rounded ${darkMode ? 'hover:bg-slate-700' : 'hover:bg-gray-100'}`}>
+              <button onClick={() => { setShowHistory(false); setHoverHistory(false); }} className={`p-1.5 sm:p-1 rounded ${darkMode ? 'hover:bg-slate-700' : 'hover:bg-gray-100'}`}>
                 <X className={`w-5 h-5 sm:w-4 sm:h-4 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`} />
               </button>
             </div>
@@ -546,15 +557,18 @@ export default function RelationalFrameTrainer() {
         )}
       </div>
 
-      <div className={`${darkMode ? 'bg-slate-800' : 'bg-white'} shadow-xl transition-all duration-300 overflow-hidden ${showStats ? 'fixed sm:relative inset-y-0 left-0 w-[90vw] sm:w-96 z-50' : 'w-0'}`}>
-        {showStats && (
-          <div className="h-full flex flex-col p-3 sm:p-4">
+      <div
+        className={`${darkMode ? 'bg-slate-800' : 'bg-white'} shadow-xl transition-all duration-300 overflow-hidden ${(showStats || hoverHistory) ? 'fixed sm:relative inset-y-0 left-0 w-[90vw] sm:w-96 z-50 opacity-100' : 'w-0 opacity-0'}`}
+        onMouseLeave={() => setHoverHistory(false)}
+      >
+        {(showStats || hoverHistory) && (
+          <div className="h-full flex flex-col p-3 sm:p-4" style={{scrollbarWidth: 'thin'}}>
             <div className="flex items-center justify-between mb-3 sm:mb-4">
               <div className="flex items-center">
                 <TrendingUp className={`w-4 h-4 sm:w-5 sm:h-5 mr-2 ${darkMode ? 'text-purple-400' : 'text-purple-600'}`} />
                 <h2 className={`text-base sm:text-lg font-bold ${darkMode ? 'text-gray-100' : 'text-gray-800'}`}>Statistics</h2>
               </div>
-              <button onClick={() => setShowStats(false)} className={`p-1.5 sm:p-1 rounded ${darkMode ? 'hover:bg-slate-700' : 'hover:bg-gray-100'}`}>
+              <button onClick={() => { setShowStats(false); setHoverHistory(false); }} className={`p-1.5 sm:p-1 rounded ${darkMode ? 'hover:bg-slate-700' : 'hover:bg-gray-100'}`}>
                 <X className={`w-5 h-5 sm:w-4 sm:h-4 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`} />
               </button>
             </div>
@@ -775,16 +789,25 @@ export default function RelationalFrameTrainer() {
       {showSettings && (
         <div className="sm:hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-sm" onClick={() => setShowSettings(false)} />
       )}
-      
-      <div className={`${darkMode ? 'bg-slate-800' : 'bg-white'} shadow-xl transition-all duration-300 overflow-hidden ${showSettings ? 'fixed sm:relative inset-y-0 right-0 w-[90vw] sm:w-96 z-50' : 'w-0'}`}>
-        {showSettings && (
-          <div className="h-full flex flex-col p-3 sm:p-4">
+
+      {/* Hover zone for settings on right */}
+      <div
+        className="fixed right-0 top-0 bottom-0 w-4 z-40"
+        onMouseEnter={() => setHoverSettings(true)}
+      />
+
+      <div
+        className={`${darkMode ? 'bg-slate-800' : 'bg-white'} shadow-xl transition-all duration-300 overflow-hidden ${(showSettings || hoverSettings) ? 'fixed sm:relative inset-y-0 right-0 w-[90vw] sm:w-96 z-50 opacity-100' : 'w-0 opacity-0'}`}
+        onMouseLeave={() => setHoverSettings(false)}
+      >
+        {(showSettings || hoverSettings) && (
+          <div className="h-full flex flex-col p-3 sm:p-4" style={{scrollbarWidth: 'thin'}}>
             <div className="flex items-center justify-between mb-3 sm:mb-4">
               <div className="flex items-center">
                 <Settings className={`w-4 h-4 sm:w-5 sm:h-5 mr-2 ${darkMode ? 'text-indigo-400' : 'text-indigo-600'}`} />
                 <h2 className={`text-base sm:text-lg font-bold ${darkMode ? 'text-gray-100' : 'text-gray-800'}`}>Settings</h2>
               </div>
-              <button onClick={() => setShowSettings(false)} className={`p-1.5 sm:p-1 rounded ${darkMode ? 'hover:bg-slate-700' : 'hover:bg-gray-100'}`}>
+              <button onClick={() => { setShowSettings(false); setHoverSettings(false); }} className={`p-1.5 sm:p-1 rounded ${darkMode ? 'hover:bg-slate-700' : 'hover:bg-gray-100'}`}>
                 <X className={`w-5 h-5 sm:w-4 sm:h-4 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`} />
               </button>
             </div>
@@ -825,14 +848,82 @@ export default function RelationalFrameTrainer() {
                   </label>
 
                   <label className="flex items-center space-x-2 cursor-pointer">
-                    <input 
-                      type="checkbox" 
-                      checked={enabledRelationModes.spatial} 
-                      onChange={(e) => setEnabledRelationModes(prev => ({ ...prev, spatial: e.target.checked }))} 
-                      className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" 
+                    <input
+                      type="checkbox"
+                      checked={enabledRelationModes.spatial}
+                      onChange={(e) => setEnabledRelationModes(prev => ({ ...prev, spatial: e.target.checked }))}
+                      className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
                     />
                     <span className={`text-sm font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Spatial 2D (NORTH, SOUTH, EAST, WEST, etc.)</span>
                   </label>
+
+                  {enabledRelationModes.spatial && (
+                    <div className={`mt-3 p-3 rounded-lg ${darkMode ? 'bg-slate-700' : 'bg-gray-100'}`}>
+                      <p className={`text-xs mb-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Spatial 2D directions:</p>
+                      <div className="grid grid-cols-3 gap-1 max-w-[200px] mx-auto">
+                        <div className={`flex items-center justify-center p-2 rounded text-xs font-bold ${darkMode ? 'bg-purple-900/50 text-purple-300' : 'bg-purple-200 text-purple-800'}`}>
+                          <span className={`mr-1 ${darkMode ? 'text-purple-300' : 'text-purple-800'}`}>1</span>NW
+                        </div>
+                        <div className={`flex items-center justify-center p-2 rounded text-xs font-bold ${darkMode ? 'bg-blue-900/50 text-blue-300' : 'bg-blue-200 text-blue-800'}`}>
+                          <span className={`mr-1 ${darkMode ? 'text-blue-300' : 'text-blue-800'}`}>2</span>N
+                        </div>
+                        <div className={`flex items-center justify-center p-2 rounded text-xs font-bold ${darkMode ? 'bg-cyan-900/50 text-cyan-300' : 'bg-cyan-200 text-cyan-800'}`}>
+                          <span className={`mr-1 ${darkMode ? 'text-cyan-300' : 'text-cyan-800'}`}>3</span>NE
+                        </div>
+                        <div className={`flex items-center justify-center p-2 rounded text-xs font-bold ${darkMode ? 'bg-red-900/50 text-red-300' : 'bg-red-200 text-red-800'}`}>
+                          <span className={`mr-1 ${darkMode ? 'text-red-300' : 'text-red-800'}`}>4</span>W
+                        </div>
+                        <div className={`flex items-center justify-center p-2 rounded text-xs font-bold ${darkMode ? 'bg-slate-600 text-gray-300' : 'bg-gray-300 text-gray-700'}`}>
+                          CENTER
+                        </div>
+                        <div className={`flex items-center justify-center p-2 rounded text-xs font-bold ${darkMode ? 'bg-green-900/50 text-green-300' : 'bg-green-200 text-green-800'}`}>
+                          <span className={`mr-1 ${darkMode ? 'text-green-300' : 'text-green-800'}`}>5</span>E
+                        </div>
+                        <div className={`flex items-center justify-center p-2 rounded text-xs font-bold ${darkMode ? 'bg-orange-900/50 text-orange-300' : 'bg-orange-200 text-orange-800'}`}>
+                          <span className={`mr-1 ${darkMode ? 'text-orange-300' : 'text-orange-800'}`}>6</span>SW
+                        </div>
+                        <div className={`flex items-center justify-center p-2 rounded text-xs font-bold ${darkMode ? 'bg-yellow-900/50 text-yellow-300' : 'bg-yellow-200 text-yellow-800'}`}>
+                          <span className={`mr-1 ${darkMode ? 'text-yellow-300' : 'text-yellow-800'}`}>7</span>S
+                        </div>
+                        <div className={`flex items-center justify-center p-2 rounded text-xs font-bold ${darkMode ? 'bg-pink-900/50 text-pink-300' : 'bg-pink-200 text-pink-800'}`}>
+                          <span className={`mr-1 ${darkMode ? 'text-pink-300' : 'text-pink-800'}`}>8</span>SE
+                        </div>
+                      </div>
+                      <p className={`text-xs mt-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                        All 8 directions are in the same 2D plane (no above/below)
+                      </p>
+                    </div>
+                  )}
+
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={enabledRelationModes.containment}
+                      onChange={(e) => setEnabledRelationModes(prev => ({ ...prev, containment: e.target.checked }))}
+                      className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                    />
+                    <span className={`text-sm font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Containment / Spatial 3D (CONTAINS, WITHIN)</span>
+                  </label>
+
+                  {enabledRelationModes.containment && (
+                    <div className={`mt-3 p-3 rounded-lg ${darkMode ? 'bg-slate-700' : 'bg-gray-100'}`}>
+                      <p className={`text-xs mb-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Containment relationships (3D depth):</p>
+                      <div className="flex flex-col items-center gap-2 max-w-[200px] mx-auto">
+                        <div className={`flex items-center justify-center p-3 rounded text-xs font-bold ${darkMode ? 'bg-indigo-900/50 text-indigo-300 border-2 border-indigo-500' : 'bg-indigo-200 text-indigo-800 border-2 border-indigo-400'}`}>
+                          <span className={`mr-1 ${darkMode ? 'text-indigo-300' : 'text-indigo-800'}`}>1</span>CONTAINS (outer)
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>↕</span>
+                        </div>
+                        <div className={`flex items-center justify-center p-3 rounded text-xs font-bold ${darkMode ? 'bg-violet-900/50 text-violet-300 border-2 border-violet-500' : 'bg-violet-200 text-violet-800 border-2 border-violet-400'}`}>
+                          <span className={`mr-1 ${darkMode ? 'text-violet-300' : 'text-violet-800'}`}>2</span>WITHIN (inner)
+                        </div>
+                      </div>
+                      <p className={`text-xs mt-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                        Represents 3D spatial containment (inside/outside)
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 
