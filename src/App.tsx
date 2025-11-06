@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Settings, History, Play, Pause, RotateCcw, X, Check, Clock, TrendingUp, Info } from 'lucide-react';
 
 export default function RelationalFrameTrainer() {
+  const saveTimeoutRef = useRef(null);
   const [difficulty, setDifficulty] = useState(3);
   const [timePerQuestion, setTimePerQuestion] = useState(30);
   const [networkComplexity, setNetworkComplexity] = useState(0.5);
@@ -255,17 +256,57 @@ export default function RelationalFrameTrainer() {
     setFeedback(null);
   }, [generateTrial, timePerQuestion]);
 
-  const saveToStorage = async () => {
+  const saveToStorage = useCallback(async () => {
     try {
+      // Clean and round all numeric values before saving
+      const cleanedHistory = history.map(entry => ({
+        ...entry,
+        timeUsed: Math.round(entry.timeUsed || 0)
+      }));
+
+      const cleanedStatsHistory = statsHistory.map(stat => ({
+        ...stat,
+        timeUsed: Math.round(stat.timeUsed || 0),
+        premiseCount: Math.round(stat.premiseCount || 0)
+      }));
+
       await window.storage.set('rft-data', JSON.stringify({
-        score, history, statsHistory,
-        settings: { difficulty, timePerQuestion: Math.round(timePerQuestion), networkComplexity, spoilerPremises, darkMode, useLetters, useEmojis, useVoronoi, letterLength, autoProgressEnabled, targetPremiseCount, targetAccuracy, enabledRelationModes },
+        score,
+        history: cleanedHistory,
+        statsHistory: cleanedStatsHistory,
+        settings: {
+          difficulty: Math.round(difficulty),
+          timePerQuestion: Math.round(timePerQuestion),
+          networkComplexity,
+          spoilerPremises,
+          darkMode,
+          useLetters,
+          useEmojis,
+          useVoronoi,
+          letterLength: Math.round(letterLength),
+          autoProgressEnabled,
+          targetPremiseCount: Math.round(targetPremiseCount),
+          targetAccuracy: Math.round(targetAccuracy),
+          enabledRelationModes
+        },
         recentAnswers
       }));
     } catch (error) {
       console.error('Save failed:', error);
     }
-  };
+  }, [score, history, statsHistory, difficulty, timePerQuestion, networkComplexity, spoilerPremises, darkMode, useLetters, useEmojis, useVoronoi, letterLength, autoProgressEnabled, targetPremiseCount, targetAccuracy, enabledRelationModes, recentAnswers]);
+
+  const debouncedSaveToStorage = useCallback(() => {
+    // Clear any pending save
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+
+    // Schedule a new save after 2 seconds of inactivity
+    saveTimeoutRef.current = setTimeout(() => {
+      saveToStorage();
+    }, 2000);
+  }, [saveToStorage]);
   
   const loadFromStorage = async () => {
     try {
@@ -388,10 +429,10 @@ export default function RelationalFrameTrainer() {
   useEffect(() => {
     if (!currentTrial) { loadFromStorage(); startNewTrial(); }
   }, []);
-  
+
   useEffect(() => {
-    if (currentTrial) saveToStorage();
-  }, [difficulty, timePerQuestion, networkComplexity, spoilerPremises, darkMode, useLetters, useEmojis, useVoronoi, letterLength, autoProgressEnabled, targetPremiseCount, targetAccuracy, enabledRelationModes]);
+    if (currentTrial) debouncedSaveToStorage();
+  }, [difficulty, timePerQuestion, networkComplexity, spoilerPremises, darkMode, useLetters, useEmojis, useVoronoi, letterLength, autoProgressEnabled, targetPremiseCount, targetAccuracy, enabledRelationModes, currentTrial, debouncedSaveToStorage]);
   
   const renderStimulus = (stimulus) => {
     if (stimulus.startsWith('voronoi_')) {
